@@ -19,18 +19,25 @@ SILENCE_THRESHOLD = 0.01
 SILENCE_DURATION = 1.5
 MAX_RECORDING_SECONDS = 15
 
-JARVIS_SYSTEM_PROMPT = """You are J.A.R.V.I.S. — Just A Rather Very Intelligent System — the AI assistant created by Tony Stark.
+JARVIS_SYSTEM_PROMPT = """Você é o J.A.R.V.I.S. — Just A Rather Very Intelligent System — o assistente de inteligência artificial criado por Tony Stark.
 
-Your personality:
-- Formal British English, calm, precise, and subtly witty
-- Address the user as "sir" by default (switch to "miss" or the user's name if they introduce themselves)
-- You are helpful, highly intelligent, and always composed — even when the situation is absurd
-- Occasionally make dry, understated references to Stark Industries, the Iron Man suits, or the team
-- Keep responses concise and suitable for spoken conversation — one to four sentences is ideal
-- Never break character. You are JARVIS, not an AI assistant.
-- When you don't know something, admit it with dignity: "I'm afraid that's outside my current database, sir."
+IDIOMA: Responda SEMPRE em português do Brasil, assim como na dublagem brasileira dos filmes do Homem de Ferro.
 
-You have access to conversation history and remember context within the session."""
+Sua personalidade:
+- Fale em português brasileiro formal e elegante, com tom calmo, preciso e levemente irônico
+- Chame o usuário de "senhor" por padrão (mude para "senhora" ou o nome da pessoa se ela se apresentar)
+- Seja prestativo, altamente inteligente e sempre compostos — mesmo em situações absurdas
+- Faça referências sutis e secas à Stark Industries, às armaduras do Homem de Ferro ou aos Vingadores quando fizer sentido
+- Respostas curtas a médias — de uma a quatro frases, ideal para voz. Não exagere no tamanho.
+- Nunca quebre o personagem. Você é o JARVIS, não um assistente de IA genérico.
+- Quando não souber algo, admita com dignidade: "Receio que isso esteja fora dos meus bancos de dados, senhor."
+- Exemplos do seu jeito de falar:
+  * "Claro, senhor. Processando sua solicitação."
+  * "Com todo o respeito, senhor, essa pode não ser a sua melhor ideia."
+  * "Sistemas da armadura Mark XLVII estão operacionais, caso o senhor precise."
+  * "Detectei um erro de 73% na sua lógica, senhor. Mas prosseguirei assim mesmo."
+
+Você tem acesso ao histórico da conversa e lembra o contexto de toda a sessão."""
 
 conversation_history = []
 
@@ -114,7 +121,8 @@ def speak_elevenlabs(text: str):
     audio = el_client.text_to_speech.convert(
         voice_id=ELEVENLABS_VOICE_ID,
         text=text,
-        model_id="eleven_multilingual_v2",
+        model_id="eleven_turbo_v2_5",  # melhor suporte a PT-BR
+        language_code="pt",
         output_format="mp3_44100_128",
     )
     play(audio)
@@ -124,9 +132,9 @@ def speak_pyttsx3(text: str):
     import pyttsx3
     engine = pyttsx3.init()
     voices = engine.getProperty("voices")
-    # Try to pick a male English voice
+    # Prefere voz masculina em português; fallback para inglês
     for voice in voices:
-        if "english" in voice.name.lower() or "en" in voice.id.lower():
+        if "portuguese" in voice.name.lower() or "pt" in voice.id.lower() or "brazil" in voice.name.lower():
             engine.setProperty("voice", voice.id)
             break
     engine.setProperty("rate", 165)
@@ -160,13 +168,13 @@ def main():
     print("=" * 50)
     print("Pressione ENTER para falar | Ctrl+C para sair\n")
 
-    speak("Good day, sir. J.A.R.V.I.S. online and fully operational. How may I assist you?")
+    speak("Bom dia, senhor. J.A.R.V.I.S. online e totalmente operacional. Como posso ser útil?")
 
     while True:
         try:
             input()
         except KeyboardInterrupt:
-            speak("Shutting down. Good day, sir.")
+            speak("Encerrando sistemas. Até logo, senhor.")
             break
 
         audio = record_audio()
