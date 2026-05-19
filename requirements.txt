@@ -1,0 +1,10 @@
+anthropic>=0.40.0
+openai-whisper>=20231117
+sounddevice>=0.4.6
+scipy>=1.11.0
+numpy>=1.24.0
+python-dotenv>=1.0.0
+
+# TTS options (install at least one)
+elevenlabs>=1.50.0       # Recommended: melhor qualidade de voz
+pyttsx3>=2.90            # Fallback: funciona offline, sem API key
