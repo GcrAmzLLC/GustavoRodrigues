@@ -57,18 +57,27 @@ def _json_string(texto: str) -> str:
 
 
 def falar_espeak(texto: str, saida: str) -> str:
-    if not shutil.which("espeak-ng"):
+    if not shutil.which("espeak-ng") or not shutil.which("mbrola"):
         subprocess.run(
-            ["apt-get", "install", "-y", "-q", "espeak-ng"],
+            ["apt-get", "install", "-y", "-q", "espeak-ng", "mbrola",
+             "mbrola-br1", "mbrola-br3"],
             check=True,
             capture_output=True,
         )
     if not saida.endswith(".wav"):
         saida = os.path.splitext(saida)[0] + ".wav"
-    subprocess.run(
-        ["espeak-ng", "-v", "pt-br", "-s", "150", "-w", saida, texto],
-        check=True,
-    )
+    # Voz MBROLA brasileira (mais natural); ESPEAK_VOICE sobrescreve
+    voz = os.getenv("ESPEAK_VOICE", "mb/mb-br1")
+    try:
+        subprocess.run(
+            ["espeak-ng", "-v", voz, "-s", "130", "-w", saida, texto],
+            check=True,
+        )
+    except subprocess.CalledProcessError:
+        subprocess.run(
+            ["espeak-ng", "-v", "pt-br", "-s", "150", "-w", saida, texto],
+            check=True,
+        )
     return saida
 
 
